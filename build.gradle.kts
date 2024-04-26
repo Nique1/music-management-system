@@ -32,6 +32,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.assertj:assertj-core:3.25.3")
+    implementation("org.mockito:mockito-core:5.11.0")
+
 }
 
 tasks.withType<Test> {
