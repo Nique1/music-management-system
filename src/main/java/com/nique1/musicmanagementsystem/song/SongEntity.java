@@ -1,27 +1,31 @@
 package com.nique1.musicmanagementsystem.song;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "song_entity")
 public class SongEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name="song_id")
+    private int songId;
 
+    @Column(name="artist_name")
     private String artistName;
+
+    @Column(name="track_name")
     private String trackName;
+
+    @Column(name="track_length")
     private int trackLength;
+
+    @Column(name="year")
     private int year;
-//    private List<String> emotions;
-//    private List<String> genres;
+
+
 
 }
