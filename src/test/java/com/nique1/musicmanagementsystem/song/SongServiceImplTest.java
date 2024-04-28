@@ -20,113 +20,79 @@ class SongServiceImplTest {
 
     @InjectMocks
     private SongServiceImpl songService;
+    private SongEntity song;
 
     @BeforeEach
     void init() {
         MockitoAnnotations.openMocks(this);
+        song = new SongEntity(1, "ArtistName", "TrackName", 300, 2020);
     }
 
     @Test
     void shouldReturnTrueWhenSongFoundById() {
-        //given
         int songId = 1;
-        SongEntity song = new SongEntity(songId, "ArtistName", "TrackName", 300, 2020);
-
-        //when
         when(songRepository.findSongsBySongId(songId)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsById(songId);
-        //then
         assertThat(songsResult).isNotEmpty();
 
     }
 
     @Test
     void shouldReturnSongDataWhenSongFoundById() {
-        //given
         int songId = 1;
-        SongEntity song = new SongEntity(songId, "ArtistName", "TrackName", 300, 2020);
-        //when
         when(songRepository.findSongsBySongId(songId)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsById(songId);
-        //then
         assertThat(songsResult).isEqualTo(Arrays.asList(song));
     }
 
     @Test
     void shouldReturnTrueWhenSongFoundByArtistName() {
-        //given
         String artistName = "ArtistName";
-        SongEntity song = new SongEntity(1, artistName, "TrackName", 300, 2020);
-
-        //when
         when(songRepository.findSongsByArtistName(artistName)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsByArtistName(artistName);
-        //then
         assertThat(songsResult).isNotEmpty();
 
     }
 
     @Test
     void shouldReturnSongDataWhenSongFoundByArtistName() {
-        //given
         String artistName = "ArtistName";
-        SongEntity song = new SongEntity(1, artistName, "TrackName", 300, 2020);
-        //when
         when(songRepository.findSongsByArtistName(artistName)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsByArtistName(artistName);
-        //then
         assertThat(songsResult).isEqualTo(Arrays.asList(song));
     }
 
     @Test
     void shouldReturnTrueWhenSongFoundByTrackName() {
-        //given
         String trackName = "TrackName";
-        SongEntity song = new SongEntity(1, "ArtistName", trackName, 300, 2020);
-
-        //when
         when(songRepository.findSongsByTrackName(trackName)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsByTrackName(trackName);
-        //then
         assertThat(songsResult).isNotEmpty();
 
     }
 
     @Test
     void shouldReturnSongDataWhenSongFoundByTrackName() {
-        //given
         String trackName = "TrackName";
-        SongEntity song = new SongEntity(1, "ArtistName", trackName, 300, 2020);
-        //when
         when(songRepository.findSongsByTrackName(trackName)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsByTrackName(trackName);
-        //then
         assertThat(songsResult).isEqualTo(Arrays.asList(song));
     }
 
     @Test
     void shouldReturnTrueWhenSongFoundByYear() {
-        //given
         int year = 2020;
-        SongEntity song = new SongEntity(1, "ArtistName", "TrackName", 300, year);
-
-        //when
         when(songRepository.findSongsByYear(year)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsByYear(year);
-        //then
         assertThat(songsResult).isNotEmpty();
 
     }
 
     @Test
     void shouldReturnSongDataWhenSongFoundByYear() {
-        //given
         int year = 2020;
-        SongEntity song = new SongEntity(1, "ArtistName", "TrackName", 300, year);
-        //when
         when(songRepository.findSongsByYear(year)).thenReturn(Arrays.asList(song));
         List<SongEntity> songsResult = songService.getSongsByYear(year);
-        //then
         assertThat(songsResult).isEqualTo(Arrays.asList(song));
     }
 
