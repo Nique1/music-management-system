@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "song_entity")
+@Table(name = "songs")
 public class SongEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
