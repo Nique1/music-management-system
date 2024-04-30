@@ -1,82 +1,176 @@
 package com.nique1.musicmanagementsystem.song;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
+@WebMvcTest(SongController.class)
 class SongControllerTest {
 
-    private MockMvc mockMvc;
-    @Mock
+    @MockBean
     private SongService songService;
-    @InjectMocks
-    private SongController songController;
-    private SongEntity song;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(songController).build();
-
-        song = new SongEntity(1, "ArtistName", "TrackName", 300, 2020);
+    @Test
+    void shouldReturnSongDataGivenSongIdExists() throws Exception {
+        //given
+        given(songService.getSongsById(1)).willReturn(Optional.of(
+                new SongEntity(1, "Adele", "Hello", 295, 2010)));
+        //when-then
+        mockMvc.perform(get("/songs/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.songId").value(1))
+                .andExpect(jsonPath("$.artistName").value("Adele"))
+                .andExpect(jsonPath("$.trackName").value("Hello"))
+                .andExpect(jsonPath("$.trackLength").value(295))
+                .andExpect(jsonPath("$.year").value(2010));
     }
 
     @Test
-    void findSongBySongId() throws Exception {
-        when(songService.getSongsById(1)).thenReturn(Collections.singletonList(song));
-
-        mockMvc.perform(get("/songs/song/1")
+    void shouldReturnStatus404GivenSongDoesNotExist() throws Exception {
+        //given
+        given(songService.getSongsById(1)).willReturn(Optional.empty());
+        //when-then
+        mockMvc.perform(get("/songs/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[{'songId': 1, 'artistName': 'ArtistName', 'trackName': 'TrackName', 'trackLength': 300, 'year': 2020}]"));
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void findSongByArtistName() throws Exception {
-        when(songService.getSongsByArtistName("ArtistName")).thenReturn(Arrays.asList(song));
-
-        mockMvc.perform(get("/songs/artist/ArtistName")
+    void shouldReturnSongDataGivenSongDataExists() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear("Adele", "Hello", 2010)).willReturn(Optional.of(
+                List.of(new SongEntity(1, "Adele", "Hello", 295, 2010))));
+        //when-then
+        mockMvc.perform(get("/songs/search?artistName=Adele&trackName=Hello&year=2010")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{'songId': 1, 'artistName': 'ArtistName', 'trackName': 'TrackName', 'trackLength': 300, 'year': 2020}]"));
+                .andExpect(jsonPath("$[0].songId").value(1))
+                .andExpect(jsonPath("$[0].artistName").value("Adele"))
+                .andExpect(jsonPath("$[0].trackName").value("Hello"))
+                .andExpect(jsonPath("$[0].trackLength").value(295))
+                .andExpect(jsonPath("$[0].year").value(2010));
+    }
+    @Test
+    void shouldReturnStatus404GivenSongDataDoesNotExist() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear("Adele", "Hello", 2010)).willReturn(Optional.empty());
+        //when-then
+        mockMvc.perform(get("/songs/search?artistName=Adele&trackName=Hello&year=2010")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void findSongByTrackName() throws Exception {
-        when(songService.getSongsByTrackName("TrackName")).thenReturn(Arrays.asList(song));
-
-        mockMvc.perform(get("/songs/track/TrackName")
+    void shouldReturnSongDataGivenArtistExists() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear("Adele", null, null))
+                .willReturn(Optional.of(
+                List.of(new SongEntity(1, "Adele", "Hello", 295, 2010))));
+        //when-then
+        mockMvc.perform(get("/songs/search?artistName=Adele")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{'songId': 1, 'artistName': 'ArtistName', 'trackName': 'TrackName', 'trackLength': 300, 'year': 2020}]"));
+                .andExpect(jsonPath("$[0].songId").value(1))
+                .andExpect(jsonPath("$[0].artistName").value("Adele"))
+                .andExpect(jsonPath("$[0].trackName").value("Hello"))
+                .andExpect(jsonPath("$[0].trackLength").value(295))
+                .andExpect(jsonPath("$[0].year").value(2010));
+    }
+    @Test
+    void shouldReturnSongDataGivenTrackExists() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear(null, "Hello", null))
+                .willReturn(Optional.of(
+                List.of(new SongEntity(1, "Adele", "Hello", 295, 2010))));
+        //when-then
+        mockMvc.perform(get("/songs/search?trackName=Hello")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].songId").value(1))
+                .andExpect(jsonPath("$[0].artistName").value("Adele"))
+                .andExpect(jsonPath("$[0].trackName").value("Hello"))
+                .andExpect(jsonPath("$[0].trackLength").value(295))
+                .andExpect(jsonPath("$[0].year").value(2010));
     }
 
     @Test
-    void findSongByYear() throws Exception {
-        when(songService.getSongsByYear(2020)).thenReturn(Arrays.asList(song));
-
-        mockMvc.perform(get("/songs/year/2020")
+    void shouldReturnSongDataGivenYearExists() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear(null, null, 2010))
+                .willReturn(Optional.of(
+                List.of(new SongEntity(1, "Adele", "Hello", 295, 2010))));
+        //when-then
+        mockMvc.perform(get("/songs/search?year=2010")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{'songId': 1, 'artistName': 'ArtistName', 'trackName': 'TrackName', 'trackLength': 300, 'year': 2020}]"));
+                .andExpect(jsonPath("$[0].songId").value(1))
+                .andExpect(jsonPath("$[0].artistName").value("Adele"))
+                .andExpect(jsonPath("$[0].trackName").value("Hello"))
+                .andExpect(jsonPath("$[0].trackLength").value(295))
+                .andExpect(jsonPath("$[0].year").value(2010));
+    }
+
+    @Test
+    void shouldReturnSongDataGivenArtistAndTrackExists() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear("Adele", "Hello", null))
+                .willReturn(Optional.of(
+                List.of(new SongEntity(1, "Adele", "Hello", 295, 2010))));
+        //when-then
+        mockMvc.perform(get("/songs/search?artistName=Adele&trackName=Hello")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].songId").value(1))
+                .andExpect(jsonPath("$[0].artistName").value("Adele"))
+                .andExpect(jsonPath("$[0].trackName").value("Hello"))
+                .andExpect(jsonPath("$[0].trackLength").value(295))
+                .andExpect(jsonPath("$[0].year").value(2010));
+    }
+
+    @Test
+    void shouldReturnSongDataGivenArtistAndYearExists() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear("Adele", null, 2010))
+                .willReturn(Optional.of(
+                List.of(new SongEntity(1, "Adele", "Hello", 295, 2010))));
+        //when-then
+        mockMvc.perform(get("/songs/search?artistName=Adele&year=2010")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].songId").value(1))
+                .andExpect(jsonPath("$[0].artistName").value("Adele"))
+                .andExpect(jsonPath("$[0].trackName").value("Hello"))
+                .andExpect(jsonPath("$[0].trackLength").value(295))
+                .andExpect(jsonPath("$[0].year").value(2010));
+    }
+    @Test
+    void shouldReturnSongDataGivenTrackAndYearExists() throws Exception {
+        //given
+        given(songService.getSongsByArtistTrackOrYear(null, "Hello", 2010))
+                .willReturn(Optional.of(
+                List.of(new SongEntity(1, "Adele", "Hello", 295, 2010))));
+        //when-then
+        mockMvc.perform(get("/songs/search?trackName=Hello&year=2010")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].songId").value(1))
+                .andExpect(jsonPath("$[0].artistName").value("Adele"))
+                .andExpect(jsonPath("$[0].trackName").value("Hello"))
+                .andExpect(jsonPath("$[0].trackLength").value(295))
+                .andExpect(jsonPath("$[0].year").value(2010));
     }
 }
