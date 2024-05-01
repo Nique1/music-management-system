@@ -28,7 +28,13 @@ public class SongFacade {
                 .toList();
     }
     private static SongRspDto convertToSongRspDto(Song song) {
-        return new SongRspDto(song.uuid(), song.artistName(), song.trackName(), song.trackLength(), song.year());
+        return new SongRspDto(
+                song.uuid(),
+                song.artistName(),
+                song.trackName(),
+                song.trackLength(),
+                song.year()
+        );
     }
 
 }
