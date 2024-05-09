@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(SongController.class)
 class SongControllerTest {
+    private final UUID uuid = UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD");
 
     @MockBean
     private SongFacade songFacade;
@@ -30,8 +31,8 @@ class SongControllerTest {
     void shouldReturnSongDataGivenSongUuidExists() throws Exception {
         //given
         //when-then
-        given(songFacade.getSongByUuid(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"))).willReturn(Optional.of(
-                new SongRspDto(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010)));
+        given(songFacade.getSongByUuid(uuid)).willReturn(Optional.of(
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         mockMvc.perform(get("/songs/{uuid}", "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -46,19 +47,29 @@ class SongControllerTest {
     @Test
     void shouldReturnStatus404GivenSongUuidDoesNotExist() throws Exception {
         //given
-        given(songFacade.getSongByUuid(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"))).willReturn(Optional.empty());
+        UUID nonExistingUUID = UUID.randomUUID();
+        given(songFacade.getSongByUuid(nonExistingUUID)).willReturn(Optional.empty());
         //when-then
-        mockMvc.perform(get("/songs/{uuid}", "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD")
+        mockMvc.perform(get("/songs/{uuid}", nonExistingUUID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
-    //TODO returns an empty List of songs
+    @Test
+    void shouldReturnStatus404GivenUuidIsNull() throws Exception {
+        //given
+        //when-then
+        mockMvc.perform(get("/songs/{uuid}", (Object) null)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+
     @Test
     void shouldReturnSongDataGivenSongDataExists() throws Exception {
         //given
-        given(songFacade.getSongByArtistTrackOrYear("Adele", "Hello",2010)).willReturn(List.of(
-                new SongRspDto(UUID.fromString( "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"),"Adele", "Hello", 295, 2010)));
+        given(songFacade.getSongByArtistTrackOrYear("Adele", "Hello", 2010)).willReturn(List.of(
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
         mockMvc.perform(get("/songs?artist-name=Adele&track-name=Hello&year=2010"))
                 .andExpect(status().isOk())
@@ -74,7 +85,7 @@ class SongControllerTest {
     void shouldReturnSongDataGivenArtistExists() throws Exception {
         //given
         given(songFacade.getSongByArtistTrackOrYear("Adele", null, null)).willReturn(List.of(
-                new SongRspDto(UUID.fromString( "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"),"Adele", "Hello", 295, 2010)));
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
         mockMvc.perform(get("/songs?artist-name=Adele"))
                 .andExpect(status().isOk())
@@ -89,7 +100,7 @@ class SongControllerTest {
     void shouldReturnSOngDataGivenTrackExists() throws Exception {
         //given
         given(songFacade.getSongByArtistTrackOrYear(null, "Hello", null)).willReturn(List.of(
-                new SongRspDto(UUID.fromString( "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"),"Adele", "Hello", 295, 2010)));
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
         mockMvc.perform(get("/songs?track-name=Hello"))
                 .andExpect(status().isOk())
@@ -104,7 +115,7 @@ class SongControllerTest {
     void shouldReturnSongDataGivenYearExists() throws Exception {
         //given
         given(songFacade.getSongByArtistTrackOrYear(null, null, 2010)).willReturn(List.of(
-                new SongRspDto(UUID.fromString( "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"),"Adele", "Hello", 295, 2010)));
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
         mockMvc.perform(get("/songs?year=2010"))
                 .andExpect(status().isOk())
@@ -119,7 +130,7 @@ class SongControllerTest {
     void shouldReturnSongDataGivenArtistAndTrackExists() throws Exception {
         //given
         given(songFacade.getSongByArtistTrackOrYear("Adele", "Hello", null)).willReturn(List.of(
-                new SongRspDto(UUID.fromString( "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"),"Adele", "Hello", 295, 2010)));
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
         mockMvc.perform(get("/songs?artist-name=Adele&track-name=Hello"))
                 .andExpect(status().isOk())
@@ -129,11 +140,12 @@ class SongControllerTest {
                 .andExpect(jsonPath("$[0].trackLength").value(295))
                 .andExpect(jsonPath("$[0].year").value(2010));
     }
+
     @Test
     void shouldReturnSongDataGivenArtistAndYearExists() throws Exception {
         //given
         given(songFacade.getSongByArtistTrackOrYear("Adele", null, 2010)).willReturn(List.of(
-                new SongRspDto(UUID.fromString( "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"),"Adele", "Hello", 295, 2010)));
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
         mockMvc.perform(get("/songs?artist-name=Adele&year=2010"))
                 .andExpect(status().isOk())
@@ -148,7 +160,7 @@ class SongControllerTest {
     void shouldReturnSongDataGivenTrackAndYearExists() throws Exception {
         //given
         given(songFacade.getSongByArtistTrackOrYear(null, "Hello", 2010)).willReturn(List.of(
-                new SongRspDto(UUID.fromString( "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"),"Adele", "Hello", 295, 2010)));
+                new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
         mockMvc.perform(get("/songs?track-name=Hello&year=2010"))
                 .andExpect(status().isOk())
@@ -157,6 +169,16 @@ class SongControllerTest {
                 .andExpect(jsonPath("$[0].trackName").value("Hello"))
                 .andExpect(jsonPath("$[0].trackLength").value(295))
                 .andExpect(jsonPath("$[0].year").value(2010));
+    }
+
+    @Test
+    void shouldReturnEmptyListGivenSongFacadeReturnsEmptyList() throws Exception {
+        //given
+        given(songFacade.getSongByArtistTrackOrYear("Adele", "Hello", 2010)).willReturn(List.of());
+        //when-then
+        mockMvc.perform(get("/songs?artist-name=Adele&track-name=Hello&year=2010"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
 }
