@@ -18,6 +18,7 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class SongFacadeTest {
+    private final UUID uuid = UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD");
     @Mock
     private SongService songService;
     private SongFacade songFacade;
@@ -26,15 +27,21 @@ class SongFacadeTest {
     void init() {
         songFacade = new SongFacade(songService);
     }
+    public Song testSong() {
+        return new Song(uuid, "Adele", "Hello", 295, 2010);
+    }
+    public SongRspDto testSongRspDto() {
+        return new SongRspDto(uuid, "Adele", "Hello", 295, 2010);
+    }
 
     @Test
     void shouldReturnSongDataGivenSongUuidExists() {
         //given
-        Song song = new Song(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
-        SongRspDto expectedSongRspDto = new SongRspDto(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
-        given(songService.getSongsByUuid(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"))).willReturn(Optional.of(song));
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        given(songService.getSongsByUuid(uuid)).willReturn(Optional.of(song));
         //when
-        Optional<SongRspDto> actualSongRspDtoOptional = songFacade.getSongByUuid(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"));
+        Optional<SongRspDto> actualSongRspDtoOptional = songFacade.getSongByUuid(uuid);
         //then
         assertThat(actualSongRspDtoOptional).isEqualTo(Optional.of(expectedSongRspDto));
     }
@@ -65,8 +72,8 @@ class SongFacadeTest {
     @Test
     void shouldReturnSongDataGivenArtistExists() {
         //given
-        Song song = new Song(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
-        SongRspDto expectedSongRspDto = new SongRspDto(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
         given(songService.getSongsByArtistTrackOrYear("Adele", null, null)).willReturn(List.of(song));
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("Adele", null, null);
@@ -77,8 +84,8 @@ class SongFacadeTest {
     @Test
     void shouldReturnSongDataGivenTrackExists() {
         //given
-        Song song = new Song(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
-        SongRspDto expectedSongRspDto = new SongRspDto(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
         given(songService.getSongsByArtistTrackOrYear(null, "Hello", null)).willReturn(List.of(song));
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "Hello", null);
@@ -89,8 +96,8 @@ class SongFacadeTest {
     @Test
     void shouldReturnSongDataGivenYearExists() {
         //given
-        Song song = new Song(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
-        SongRspDto expectedSongRspDto = new SongRspDto(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"), "Adele", "Hello", 295, 2010);
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
         given(songService.getSongsByArtistTrackOrYear(null, null, 2010)).willReturn(List.of(song));
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, 2010);
