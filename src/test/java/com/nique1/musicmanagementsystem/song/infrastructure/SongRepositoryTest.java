@@ -2,7 +2,6 @@ package com.nique1.musicmanagementsystem.song.infrastructure;
 
 import com.nique1.musicmanagementsystem.song.domain.Song;
 import com.nique1.musicmanagementsystem.song.domain.SongRepository;
-import com.nique1.musicmanagementsystem.song.infrastructure.SongEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @Testcontainers
 class SongRepositoryTest {
+    private final UUID uuid = UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD");
     @Autowired
     private SongRepository songRepository;
     @Container
@@ -34,10 +34,11 @@ class SongRepositoryTest {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
 
     }
+
     @Test
-    void shouldFindTrackGivenUuid(){
+    void shouldFindTrackGivenUuid() {
         //when
-        Optional<Song> song = songRepository.findSongsBySongUuid(UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD"));
+        Optional<Song> song = songRepository.findSongsBySongUuid(uuid);
         //then
         assertThat(song).isNotEmpty();
         assertThat(song).get().satisfies(s -> {
@@ -50,7 +51,7 @@ class SongRepositoryTest {
     }
 
     @Test
-    void shouldFindTrackGivenArtistName(){
+    void shouldFindTrackGivenArtistName() {
         //when
         List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear("Adele", null, null);
         //then
@@ -64,8 +65,9 @@ class SongRepositoryTest {
         });
 
     }
+
     @Test
-    void shouldFindTrackGivenTrackName(){
+    void shouldFindTrackGivenTrackName() {
         //when
         List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear(null, "Hello", null);
         //then
@@ -79,8 +81,9 @@ class SongRepositoryTest {
         });
 
     }
+
     @Test
-    void shouldFindTrackGivenYear(){
+    void shouldFindTrackGivenYear() {
         //when
         List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear(null, null, 2010);
         //then
@@ -94,8 +97,9 @@ class SongRepositoryTest {
         });
 
     }
+
     @Test
-    void shouldFindTrackGivenArtistNameAndTrackName(){
+    void shouldFindTrackGivenArtistNameAndTrackName() {
         //when
         List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear("Adele", "Hello", null);
         //then
@@ -109,5 +113,24 @@ class SongRepositoryTest {
         });
 
     }
+
+    @Test
+    void shouldReturnEmptyOptionalGivenUuidNotFound() {
+        //given
+        UUID nonExistingUuid = UUID.randomUUID();
+        //when
+        Optional<Song> song = songRepository.findSongsBySongUuid(nonExistingUuid);
+        //then
+        assertThat(song).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyListGivenNullParameters() {
+        //when
+        List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear(null, null, null);
+        //then
+        assertThat(songs).isEmpty();
+    }
+
 
 }
