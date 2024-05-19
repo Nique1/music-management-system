@@ -12,29 +12,22 @@ import java.util.UUID;
 @Service
 public class SongFacade {
     private final SongService songService;
+    private final SongDtoMapper songDtoMapper;
 
-    public SongFacade(SongService songService) {
+    public SongFacade(SongService songService, SongDtoMapper songDtoMapper) {
         this.songService = songService;
+        this.songDtoMapper = songDtoMapper;
     }
 
     public Optional<SongRspDto> getSongByUuid(UUID uuid) {
         return songService.getSongsByUuid(uuid)
-                .map(SongFacade::convertToSongRspDto);
+                .map(songDtoMapper::convertToSongRspDto);
     }
 
     public List<SongRspDto> getSongByArtistTrackOrYear(String artistName, String trackName, Integer year) {
         return songService.getSongsByArtistTrackOrYear(artistName, trackName, year).stream()
-                .map(SongFacade::convertToSongRspDto)
+                .map(songDtoMapper::convertToSongRspDto)
                 .toList();
-    }
-    private static SongRspDto convertToSongRspDto(Song song) {
-        return new SongRspDto(
-                song.uuid(),
-                song.artistName(),
-                song.trackName(),
-                song.trackLength(),
-                song.year()
-        );
     }
 
 }

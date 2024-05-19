@@ -38,7 +38,8 @@ class SongServiceTest {
         //when
         Optional<Song> actualSong = songService.getSongsByUuid(uuid);
         //then
-        assertThat(actualSong).isEqualTo(Optional.of(song));
+        //TODO change Optional
+        assertThat(actualSong).contains(song);
     }
 
     @Test
@@ -69,7 +70,7 @@ class SongServiceTest {
         //when
         List<Song> actualSongList = songService.getSongsByArtistTrackOrYear("Adele", null, null);
         //then
-        assertThat(actualSongList).isEqualTo(List.of(song));
+        assertThat(actualSongList).containsExactly(song);
 
     }
 
@@ -81,7 +82,7 @@ class SongServiceTest {
         //when
         List<Song> actualSongList = songService.getSongsByArtistTrackOrYear(null, "Hello", null);
         //then
-        assertThat(actualSongList).isEqualTo(List.of(song));
+        assertThat(actualSongList).containsExactly(song);
 
     }
 
@@ -93,7 +94,7 @@ class SongServiceTest {
         //when
         List<Song> actualSongList = songService.getSongsByArtistTrackOrYear(null, null, 2010);
         //then
-        assertThat(actualSongList).isEqualTo(List.of(song));
+        assertThat(actualSongList).containsExactly(song);
     }
 
     @Test

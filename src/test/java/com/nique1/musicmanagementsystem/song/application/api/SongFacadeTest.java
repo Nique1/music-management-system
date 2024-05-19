@@ -6,9 +6,11 @@ import com.nique1.musicmanagementsystem.song.domain.SongService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +27,7 @@ class SongFacadeTest {
 
     @BeforeEach
     void init() {
-        songFacade = new SongFacade(songService);
+        songFacade = new SongFacade(songService, Mappers.getMapper(SongDtoMapper.class));
     }
     public Song testSong() {
         return new Song(uuid, "Adele", "Hello", 295, 2010);
@@ -43,7 +45,7 @@ class SongFacadeTest {
         //when
         Optional<SongRspDto> actualSongRspDtoOptional = songFacade.getSongByUuid(uuid);
         //then
-        assertThat(actualSongRspDtoOptional).isEqualTo(Optional.of(expectedSongRspDto));
+        assertThat(actualSongRspDtoOptional).contains(expectedSongRspDto);
     }
 
     @Test
@@ -78,7 +80,7 @@ class SongFacadeTest {
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("Adele", null, null);
         //then
-        assertThat(actualSongRspDtoList).isEqualTo(List.of(expectedSongRspDto));
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
     }
 
     @Test
@@ -90,7 +92,7 @@ class SongFacadeTest {
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "Hello", null);
         //then
-        assertThat(actualSongRspDtoList).isEqualTo(List.of(expectedSongRspDto));
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
     }
 
     @Test
@@ -102,13 +104,13 @@ class SongFacadeTest {
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, 2010);
         //then
-        assertThat(actualSongRspDtoList).isEqualTo(List.of(expectedSongRspDto));
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
     }
 
     @Test
     void shouldReturnEmptyOptionalGivenNullParameters() {
         //given
-        given(songFacade.getSongByArtistTrackOrYear(null, null, null)).willReturn(List.of());
+        given(songFacade.getSongByArtistTrackOrYear(null, null, null)).willReturn(Collections.emptyList());
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, null);
         //then

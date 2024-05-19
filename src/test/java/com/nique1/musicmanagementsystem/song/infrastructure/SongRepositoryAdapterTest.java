@@ -20,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Testcontainers
-class SongRepositoryTest {
+class SongRepositoryAdapterTest {
     private final UUID uuid = UUID.fromString("D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD");
     @Autowired
-    private SongRepository songRepository;
+    private SongJpaRepositoryAdapter songRepository;
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
             .withUsername("postgres")

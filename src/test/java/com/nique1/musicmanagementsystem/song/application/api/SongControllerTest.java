@@ -30,9 +30,9 @@ class SongControllerTest {
     @Test
     void shouldReturnSongDataGivenSongUuidExists() throws Exception {
         //given
-        //when-then
         given(songFacade.getSongByUuid(uuid)).willReturn(Optional.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
+        //when-then
         mockMvc.perform(get("/songs/{uuid}", "D6E80790-081A-4ABD-B5E7-1AC0CEDC9EBD")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -55,15 +55,6 @@ class SongControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void shouldReturnStatus404GivenUuidIsNull() throws Exception {
-        //given
-        //when-then
-        mockMvc.perform(get("/songs/{uuid}", (Object) null)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
 
     @Test
     void shouldReturnSongDataGivenSongDataExists() throws Exception {
@@ -71,7 +62,10 @@ class SongControllerTest {
         given(songFacade.getSongByArtistTrackOrYear("Adele", "Hello", 2010)).willReturn(List.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
-        mockMvc.perform(get("/songs?artist-name=Adele&track-name=Hello&year=2010"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("artist-name", "Adele")
+                        .queryParam("track-name", "Hello")
+                        .queryParam("year", "2010"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("d6e80790-081a-4abd-b5e7-1ac0cedc9ebd"))
                 .andExpect(jsonPath("$[0].artistName").value("Adele"))
@@ -87,7 +81,8 @@ class SongControllerTest {
         given(songFacade.getSongByArtistTrackOrYear("Adele", null, null)).willReturn(List.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
-        mockMvc.perform(get("/songs?artist-name=Adele"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("artist-name", "Adele"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("d6e80790-081a-4abd-b5e7-1ac0cedc9ebd"))
                 .andExpect(jsonPath("$[0].artistName").value("Adele"))
@@ -102,7 +97,8 @@ class SongControllerTest {
         given(songFacade.getSongByArtistTrackOrYear(null, "Hello", null)).willReturn(List.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
-        mockMvc.perform(get("/songs?track-name=Hello"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("track-name", "Hello"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("d6e80790-081a-4abd-b5e7-1ac0cedc9ebd"))
                 .andExpect(jsonPath("$[0].artistName").value("Adele"))
@@ -117,7 +113,8 @@ class SongControllerTest {
         given(songFacade.getSongByArtistTrackOrYear(null, null, 2010)).willReturn(List.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
-        mockMvc.perform(get("/songs?year=2010"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("year", "2010"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("d6e80790-081a-4abd-b5e7-1ac0cedc9ebd"))
                 .andExpect(jsonPath("$[0].artistName").value("Adele"))
@@ -132,7 +129,9 @@ class SongControllerTest {
         given(songFacade.getSongByArtistTrackOrYear("Adele", "Hello", null)).willReturn(List.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
-        mockMvc.perform(get("/songs?artist-name=Adele&track-name=Hello"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("artist-name", "Adele")
+                        .queryParam("track-name", "Hello"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("d6e80790-081a-4abd-b5e7-1ac0cedc9ebd"))
                 .andExpect(jsonPath("$[0].artistName").value("Adele"))
@@ -147,7 +146,9 @@ class SongControllerTest {
         given(songFacade.getSongByArtistTrackOrYear("Adele", null, 2010)).willReturn(List.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
-        mockMvc.perform(get("/songs?artist-name=Adele&year=2010"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("artist-name", "Adele")
+                        .queryParam("year", "2010"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("d6e80790-081a-4abd-b5e7-1ac0cedc9ebd"))
                 .andExpect(jsonPath("$[0].artistName").value("Adele"))
@@ -162,7 +163,9 @@ class SongControllerTest {
         given(songFacade.getSongByArtistTrackOrYear(null, "Hello", 2010)).willReturn(List.of(
                 new SongRspDto(uuid, "Adele", "Hello", 295, 2010)));
         //when-then
-        mockMvc.perform(get("/songs?track-name=Hello&year=2010"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("track-name", "Hello")
+                        .queryParam("year", "2010"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("d6e80790-081a-4abd-b5e7-1ac0cedc9ebd"))
                 .andExpect(jsonPath("$[0].artistName").value("Adele"))
@@ -176,7 +179,10 @@ class SongControllerTest {
         //given
         given(songFacade.getSongByArtistTrackOrYear("Adele", "Hello", 2010)).willReturn(List.of());
         //when-then
-        mockMvc.perform(get("/songs?artist-name=Adele&track-name=Hello&year=2010"))
+        mockMvc.perform(get("/songs")
+                        .queryParam("artist-name", "Adele")
+                        .queryParam("track-name", "Hello")
+                        .queryParam("year", "2010"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }

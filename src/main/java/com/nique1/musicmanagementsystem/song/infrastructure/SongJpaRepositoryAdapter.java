@@ -9,27 +9,25 @@ import java.util.Optional;
 import java.util.UUID;
 @Repository
 public class SongJpaRepositoryAdapter implements SongRepository {
-
     private final SongJpaRepository songJpaRepository;
+    private final SongEntityMapper songEntityMapper;
 
-    public SongJpaRepositoryAdapter(SongJpaRepository songJpaRepository) {
+    public SongJpaRepositoryAdapter(SongJpaRepository songJpaRepository, SongEntityMapper songEntityMapper) {
         this.songJpaRepository = songJpaRepository;
+        this.songEntityMapper = songEntityMapper;
     }
 
     @Override
     public Optional<Song> findSongsBySongUuid(UUID uuid) {
         return songJpaRepository.findSongsByUuid(uuid)
-                .map(SongJpaRepositoryAdapter::convertToSong);
+                .map(songEntityMapper::convertToSong);
     }
 
     @Override
     public List<Song> findSongsByArtistNameOrTrackNameOrYear(String artistName, String trackName, Integer year) {
         return songJpaRepository.findSongsByArtistNameOrTrackNameOrYear(artistName, trackName, year).stream()
-                .map(SongJpaRepositoryAdapter::convertToSong)
+                .map(songEntityMapper::convertToSong)
                 .toList();
     }
 
-    private static Song convertToSong(SongEntity songEntity) {
-        return new Song(songEntity.getUuid(), songEntity.getArtistName(), songEntity.getTrackName(), songEntity.getTrackLength(), songEntity.getYear());
-    }
 }
