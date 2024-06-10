@@ -2,6 +2,7 @@ package com.nique1.musicmanagementsystem.song.application.api;
 
 import com.nique1.musicmanagementsystem.song.application.api.dto.SongRspDto;
 import com.nique1.musicmanagementsystem.song.domain.Song;
+import com.nique1.musicmanagementsystem.song.domain.SongCriteria;
 import com.nique1.musicmanagementsystem.song.domain.SongService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,16 @@ class SongFacadeTest {
     private SongService songService;
     private SongFacade songFacade;
 
+
     @BeforeEach
     void init() {
         songFacade = new SongFacade(songService, Mappers.getMapper(SongDtoMapper.class));
     }
+
     public Song testSong() {
         return new Song(uuid, "Adele", "Hello", 295, 2010);
     }
+
     public SongRspDto testSongRspDto() {
         return new SongRspDto(uuid, "Adele", "Hello", 295, 2010);
     }
@@ -76,9 +80,10 @@ class SongFacadeTest {
         //given
         Song song = testSong();
         SongRspDto expectedSongRspDto = testSongRspDto();
-        given(songService.getSongsByArtistTrackOrYear("Adele", null, null)).willReturn(List.of(song));
+        SongCriteria songCriteria = new SongCriteria("Adele", null, null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
         //when
-        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("Adele", null, null);
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("Adele", null, null, null);
         //then
         assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
     }
@@ -88,9 +93,10 @@ class SongFacadeTest {
         //given
         Song song = testSong();
         SongRspDto expectedSongRspDto = testSongRspDto();
-        given(songService.getSongsByArtistTrackOrYear(null, "Hello", null)).willReturn(List.of(song));
+        SongCriteria songCriteria = new SongCriteria(null, "Hello", null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
         //when
-        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "Hello", null);
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "Hello", null, null);
         //then
         assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
     }
@@ -100,9 +106,10 @@ class SongFacadeTest {
         //given
         Song song = testSong();
         SongRspDto expectedSongRspDto = testSongRspDto();
-        given(songService.getSongsByArtistTrackOrYear(null, null, 2010)).willReturn(List.of(song));
+        SongCriteria songCriteria = new SongCriteria(null, null, 2010, 2010);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
         //when
-        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, 2010);
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, 2010, 2010);
         //then
         assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
     }
@@ -110,12 +117,160 @@ class SongFacadeTest {
     @Test
     void shouldReturnEmptyOptionalGivenNullParameters() {
         //given
-        given(songFacade.getSongByArtistTrackOrYear(null, null, null)).willReturn(Collections.emptyList());
+        given(songFacade.getSongByArtistTrackOrYear(null, null, null, null)).willReturn(Collections.emptyList());
         //when
-        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, null);
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, null, null);
         //then
         assertThat(actualSongRspDtoList).isEmpty();
     }
 
+    @Test
+    void shouldReturnSongDataGivenArtistAndTrackExists() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria("Adele", "Hello", null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("Adele", "Hello", null, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
 
+    @Test
+    void shouldReturnSongDataGivenArtistAndYearExists() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria("Adele", null, 2009, 2010);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("Adele", null, 2009, 2010);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+
+    @Test
+    void shouldReturnSongDataGivenTrackAndYearExists() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria(null, "Hello", 2009, 2010);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "Hello", 2009, 2010);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalGivenYearFromGreaterThanYearTo() {
+        //given
+        SongCriteria songCriteria = new SongCriteria(null, null, 2010, 2009);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(Collections.emptyList());
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, 2010, 2009);
+        //then
+        assertThat(actualSongRspDtoList).isEmpty();
+    }
+    @Test
+    void shouldReturnSongDataGivenPartialLowercaseArtistName() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria("ade", null, null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("ade", null, null, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+
+    @Test
+    void shouldReturnSongDataGivenPartialLowercaseArtistNameAndYearFrom(){
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria("ade", null, 2010, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("ade", null, 2010, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+
+    @Test
+    void shouldReturnSongDataGivenPartialUppercaseArtistName() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria("ADE", null, null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("ADE", null, null, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+    @Test
+    void shouldReturnSongDataGivenPartialUppercaseArtistNameAndYearTo(){
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria("ADE", null, null, 2010);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear("ADE", null, null, 2010);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+
+    @Test
+    void shouldReturnSongDataGIvenPartialLowercaseTrackName() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria(null, "hel", null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "hel", null, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+
+    @Test
+    void shouldReturnSongDataGIvenPartialLowercaseTrackNameAndYearFrom() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria(null, "hel", 2010, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "hel", 2010, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+    @Test
+    void shouldReturnSongDataGIvenPartialUppercaseTrackName() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria(null, "HEL", null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "HEL", null, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
+    @Test
+    void shouldReturnSongDataGIvenPartialUppercaseTrackNameAndYearFrom() {
+        //given
+        Song song = testSong();
+        SongRspDto expectedSongRspDto = testSongRspDto();
+        SongCriteria songCriteria = new SongCriteria(null, "HEL", 2009, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(List.of(song));
+        //when
+        List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, "HEL", 2009, null);
+        //then
+        assertThat(actualSongRspDtoList).containsExactly(expectedSongRspDto);
+    }
 }

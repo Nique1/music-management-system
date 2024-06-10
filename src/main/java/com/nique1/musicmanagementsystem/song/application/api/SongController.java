@@ -24,10 +24,13 @@ public class SongController {
     }
 
     @GetMapping
-    public List<SongRspDto> getSongByArtistTrackOrYear(@RequestParam(name = "artist-name", required = false) String artistName,
-                                                       @RequestParam(name = "track-name", required = false) String trackName,
-                                                       @RequestParam(name = "year", required = false) Integer year) {
-        return songFacade.getSongByArtistTrackOrYear(artistName, trackName, year);
+    public List<SongRspDto> getSongByArtistTrackOrYear(
+        @RequestParam(name = "artist-name", required = false) String artistName,
+        @RequestParam(name = "track-name", required = false) String trackName,
+        @RequestParam(name = "year-from", required = false) Integer yearFrom,
+        @RequestParam(name = "year-to", required = false) Integer yearTo
+    ) {
+        return songFacade.getSongByArtistTrackOrYear(artistName, trackName, yearFrom, yearTo);
     }
 
 }

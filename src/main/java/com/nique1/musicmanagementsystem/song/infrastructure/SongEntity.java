@@ -14,24 +14,23 @@ import java.util.UUID;
 public class SongEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="song_id")
+    @Column(name = "song_id")
     private int songId;
 
-    @Column(name="uuid")
+    @Column(name = "uuid")
     private UUID uuid;
 
-    @Column(name="artist_name")
+    @Column(name = "artist_name")
     private String artistName;
 
-    @Column(name="track_name")
+    @Column(name = "track_name")
     private String trackName;
 
-    @Column(name="track_length")
+    @Column(name = "track_length")
     private int trackLength;
 
-    @Column(name="year")
+    @Column(name = "year")
     private int year;
-
 
 
 }
