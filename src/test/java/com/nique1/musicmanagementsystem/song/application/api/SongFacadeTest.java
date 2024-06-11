@@ -117,7 +117,8 @@ class SongFacadeTest {
     @Test
     void shouldReturnEmptyOptionalGivenNullParameters() {
         //given
-        given(songFacade.getSongByArtistTrackOrYear(null, null, null, null)).willReturn(Collections.emptyList());
+        SongCriteria songCriteria = new SongCriteria(null, null, null, null);
+        given(songService.getSongsByCriteria(songCriteria)).willReturn(Collections.emptyList());
         //when
         List<SongRspDto> actualSongRspDtoList = songFacade.getSongByArtistTrackOrYear(null, null, null, null);
         //then
