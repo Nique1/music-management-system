@@ -1,7 +1,7 @@
 package com.nique1.musicmanagementsystem.song.infrastructure;
 
 import com.nique1.musicmanagementsystem.song.domain.Song;
-import com.nique1.musicmanagementsystem.song.domain.SongRepository;
+import com.nique1.musicmanagementsystem.song.domain.SongCriteria;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,9 +51,20 @@ class SongRepositoryAdapterTest {
     }
 
     @Test
+    void shouldReturnEmptyOptionalGivenUuidNotFound() {
+        //given
+        UUID nonExistingUuid = UUID.randomUUID();
+        //when
+        Optional<Song> song = songRepository.findSongsBySongUuid(nonExistingUuid);
+        //then
+        assertThat(song).isEmpty();
+    }
+
+    @Test
     void shouldFindTrackGivenArtistName() {
         //when
-        List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear("Adele", null, null);
+        SongCriteria songCriteria = new SongCriteria("Adele", null, null, null);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
         //then
         assertThat(songs).isNotEmpty();
         assertThat(songs).hasSize(1);
@@ -64,12 +75,22 @@ class SongRepositoryAdapterTest {
             assertThat(s.year()).isEqualTo(2010);
         });
 
+    }
+
+    @Test
+    void shouldReturnEmptyListGivenArtistNameNotFound() {
+        //when
+        SongCriteria songCriteria = new SongCriteria("Some artist", null, null, null);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
+        //then
+        assertThat(songs).isEmpty();
     }
 
     @Test
     void shouldFindTrackGivenTrackName() {
         //when
-        List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear(null, "Hello", null);
+        SongCriteria songCriteria = new SongCriteria(null, "Hello", null, null);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
         //then
         assertThat(songs).isNotEmpty();
         assertThat(songs).hasSize(1);
@@ -83,9 +104,20 @@ class SongRepositoryAdapterTest {
     }
 
     @Test
+    void shouldReturnEmptyListGivenTrackNameNotFound() {
+        //when
+        SongCriteria songCriteria = new SongCriteria(null, "Some track", null, null);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
+        //then
+        assertThat(songs).isEmpty();
+    }
+
+
+    @Test
     void shouldFindTrackGivenYear() {
         //when
-        List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear(null, null, 2010);
+        SongCriteria songCriteria = new SongCriteria(null, null, 2010, 2010);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
         //then
         assertThat(songs).isNotEmpty();
         assertThat(songs).hasSize(1);
@@ -101,7 +133,8 @@ class SongRepositoryAdapterTest {
     @Test
     void shouldFindTrackGivenArtistNameAndTrackName() {
         //when
-        List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear("Adele", "Hello", null);
+        SongCriteria songCriteria = new SongCriteria("Adele", "Hello", null, null);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
         //then
         assertThat(songs).isNotEmpty();
         assertThat(songs).hasSize(1);
@@ -115,21 +148,310 @@ class SongRepositoryAdapterTest {
     }
 
     @Test
-    void shouldReturnEmptyOptionalGivenUuidNotFound() {
-        //given
-        UUID nonExistingUuid = UUID.randomUUID();
+    void shouldFindTrackGivenArtistNameAndYearFrom() {
         //when
-        Optional<Song> song = songRepository.findSongsBySongUuid(nonExistingUuid);
+        SongCriteria songCriteria = new SongCriteria("Adele", null, 2010, null);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
         //then
-        assertThat(song).isEmpty();
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+        });
     }
 
     @Test
-    void shouldReturnEmptyListGivenNullParameters() {
+    void shouldFindTrackGivenArtistNameAndYearTo() {
         //when
-        List<Song> songs = songRepository.findSongsByArtistNameOrTrackNameOrYear(null, null, null);
+        SongCriteria songCriteria = new SongCriteria("Adele", null, null, 2010);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+        });
+    }
+
+    @Test
+    void shouldFindTrackGivenTrackNameAndYearFrom() {
+        //when
+        SongCriteria songCriteria = new SongCriteria(null, "Hello", 2010, null);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+        });
+    }
+
+    @Test
+    void shouldReturnTrackGivenTrackNameAndYearTo() {
+        //when
+        SongCriteria songCriteria = new SongCriteria(null, "Hello", null, 2010);
+        List<Song> songs = songRepository.findSongsByCriteria(songCriteria);
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+        });
+    }
+
+
+    @Test
+    void shouldReturnSongsGivenRangeOfYears() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, null, 1970, 1985));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(2);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Stairway to Heaven");
+            assertThat(s.artistName()).isEqualTo("Led Zeppelin");
+            assertThat(s.trackLength()).isEqualTo(482);
+            assertThat(s.year()).isEqualTo(1970);
+
+        });
+        assertThat(songs.get(1)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Billie Jean");
+            assertThat(s.artistName()).isEqualTo("Michael Jackson");
+            assertThat(s.trackLength()).isEqualTo(294);
+            assertThat(s.year()).isEqualTo(1980);
+
+        });
+
+    }
+
+    @Test
+    void shouldReturnEmptyListGivenGreaterYearFromThanYearTo() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, null, 1985, 1970));
         //then
         assertThat(songs).isEmpty();
+
+    }
+
+    @Test
+    void shouldReturnTrackGivenTheSameYearFromAndYearTo() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, null, 1970, 1970));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Stairway to Heaven");
+            assertThat(s.artistName()).isEqualTo("Led Zeppelin");
+            assertThat(s.trackLength()).isEqualTo(482);
+            assertThat(s.year()).isEqualTo(1970);
+
+        });
+
+    }
+
+    @Test
+    void shouldReturnEmptyListGivenNoDatabaseMatchHavingYearFromAndYearTo() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, null, 2030, 2050));
+        //then
+        assertThat(songs).isEmpty();
+    }
+
+    @Test
+    void shouldReturnAllTracksGivenFullYearsRange() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, null, 1960, 2010));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(5);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Come Together");
+            assertThat(s.artistName()).isEqualTo("The Beatles");
+            assertThat(s.trackLength()).isEqualTo(259);
+            assertThat(s.year()).isEqualTo(1960);
+
+        });
+        assertThat(songs.get(1)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Stairway to Heaven");
+            assertThat(s.artistName()).isEqualTo("Led Zeppelin");
+            assertThat(s.trackLength()).isEqualTo(482);
+            assertThat(s.year()).isEqualTo(1970);
+
+        });
+        assertThat(songs.get(2)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Billie Jean");
+            assertThat(s.artistName()).isEqualTo("Michael Jackson");
+            assertThat(s.trackLength()).isEqualTo(294);
+            assertThat(s.year()).isEqualTo(1980);
+
+        });
+        assertThat(songs.get(3)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Smells Like Teen Spirit");
+            assertThat(s.artistName()).isEqualTo("Nirvana");
+            assertThat(s.trackLength()).isEqualTo(301);
+            assertThat(s.year()).isEqualTo(1990);
+
+        });
+        assertThat(songs.get(4)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
+    }
+
+    @Test
+    void shouldReturnAllSongsGivenNullParameters() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, null, null, null));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(5);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Come Together");
+            assertThat(s.artistName()).isEqualTo("The Beatles");
+            assertThat(s.trackLength()).isEqualTo(259);
+            assertThat(s.year()).isEqualTo(1960);
+
+        });
+        assertThat(songs.get(1)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Stairway to Heaven");
+            assertThat(s.artistName()).isEqualTo("Led Zeppelin");
+            assertThat(s.trackLength()).isEqualTo(482);
+            assertThat(s.year()).isEqualTo(1970);
+
+        });
+        assertThat(songs.get(2)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Billie Jean");
+            assertThat(s.artistName()).isEqualTo("Michael Jackson");
+            assertThat(s.trackLength()).isEqualTo(294);
+            assertThat(s.year()).isEqualTo(1980);
+
+        });
+        assertThat(songs.get(3)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Smells Like Teen Spirit");
+            assertThat(s.artistName()).isEqualTo("Nirvana");
+            assertThat(s.trackLength()).isEqualTo(301);
+            assertThat(s.year()).isEqualTo(1990);
+
+        });
+        assertThat(songs.get(4)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
+    }
+
+    @Test
+    void shouldReturnTrackGivenPartialLowerCaseArtistName() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria("ade", null, null, null));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
+    }
+
+    @Test
+    void shouldReturnTrackGivenPartialLowerCaseTrackName() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, "hel", null, null));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
+    }
+
+    @Test
+    void shouldReturnTrackGivenPartialLowerCaseTrackNameAndYearFrom() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, "hel", 2009, null));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
+    }
+
+    @Test
+    void shouldReturnTrackGivenPartialUpperCaseArtistName() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria("ADE", null, null, null));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
+    }
+
+    @Test
+    void shouldReturnTrackGivenPartialUpperCaseArtistNameAndYearTo() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria("ADE", null, null, 2011));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
+    }
+
+    @Test
+    void shouldReturnTrackGivenPartialUpperCaseTrackName() {
+        //when
+        List<Song> songs = songRepository.findSongsByCriteria(new SongCriteria(null, "HEL", null, null));
+        //then
+        assertThat(songs).isNotEmpty();
+        assertThat(songs).hasSize(1);
+        assertThat(songs.get(0)).satisfies(s -> {
+            assertThat(s.trackName()).isEqualTo("Hello");
+            assertThat(s.artistName()).isEqualTo("Adele");
+            assertThat(s.trackLength()).isEqualTo(295);
+            assertThat(s.year()).isEqualTo(2010);
+
+        });
     }
 
 

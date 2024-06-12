@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public interface SongRepository {
     Optional<Song> findSongsBySongUuid(UUID uuid);
-    List<Song> findSongsByArtistNameOrTrackNameOrYear(String artistName, String trackName, Integer year);
 
+    List<Song> findSongsByCriteria(SongCriteria songCriteria);
 }

@@ -1,5 +1,6 @@
 package com.nique1.musicmanagementsystem.song.application.api;
 
+import com.nique1.musicmanagementsystem.song.domain.SongCriteria;
 import com.nique1.musicmanagementsystem.song.domain.SongService;
 import com.nique1.musicmanagementsystem.song.application.api.dto.SongRspDto;
 import com.nique1.musicmanagementsystem.song.domain.Song;
@@ -24,8 +25,9 @@ public class SongFacade {
                 .map(songDtoMapper::convertToSongRspDto);
     }
 
-    public List<SongRspDto> getSongByArtistTrackOrYear(String artistName, String trackName, Integer year) {
-        return songService.getSongsByArtistTrackOrYear(artistName, trackName, year).stream()
+    public List<SongRspDto> getSongByArtistTrackOrYear(String artistName, String trackName, Integer yearFrom, Integer yearTo) {
+        SongCriteria songCriteria = new SongCriteria(artistName, trackName, yearFrom, yearTo);
+        return songService.getSongsByCriteria(songCriteria).stream()
                 .map(songDtoMapper::convertToSongRspDto)
                 .toList();
     }

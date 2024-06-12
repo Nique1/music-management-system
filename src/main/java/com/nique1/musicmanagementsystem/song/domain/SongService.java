@@ -7,6 +7,7 @@ import java.util.UUID;
 public class SongService {
 
     private final SongRepository songRepository;
+
     public SongService(SongRepository songRepository) {
         this.songRepository = songRepository;
     }
@@ -15,8 +16,7 @@ public class SongService {
         return songRepository.findSongsBySongUuid(uuid);
     }
 
-    public List<Song> getSongsByArtistTrackOrYear(String artistName, String trackName, Integer year) {
-        return songRepository.findSongsByArtistNameOrTrackNameOrYear(artistName, trackName, year);    }
-
-
+    public List<Song> getSongsByCriteria(SongCriteria songCriteria) {
+        return songRepository.findSongsByCriteria(songCriteria);
+    }
 }
